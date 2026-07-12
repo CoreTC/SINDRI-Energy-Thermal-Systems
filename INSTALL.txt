@@ -1,0 +1,109 @@
+╔════════════════════════════════════════════════════════════╗
+║          SINDRI v3 - GUIDE D'INSTALLATION                  ║
+║          Energy - Thermal - Systems                        ║
+╚════════════════════════════════════════════════════════════╝
+
+═══ INSTALLATION EXPRESS ═══
+
+  1. Clone / dezip le dossier SINDRI ou tu veux
+  2. Double-clic sur "Install.bat"  (accepte l'UAC)
+     -> Verifie / installe Python + .NET (via winget)
+     -> pip install -r requirements.txt
+     -> Telecharge LibreHardwareMonitor depuis GitHub (release officielle)
+     -> Cree un raccourci Bureau "SINDRI"
+     -> Lance SINDRI
+
+  C'EST TOUT. SINDRI tourne dans le systray (icone cyan a cote de l'horloge).
+  Serveur web dispo sur http://localhost:7890
+
+═══ INSTALLATION MANUELLE ═══
+
+  py -m pip install -r requirements.txt
+  powershell -File Download-LHM.ps1
+  py pulse.py
+
+═══ FICHIERS DU PROJET ═══
+
+  pulse.py                    Le programme principal (tout en un)
+  Install.bat                 Installation TOUT-EN-UN (recommande)
+  Lancer SINDRI.bat           Le launcher auto-eleve UAC
+  Download-LHM.ps1            Telechargement LibreHardwareMonitor
+  requirements.txt            Dependances Python
+  README.md                   Documentation
+  LICENSE                     Licence MIT
+  LibreHardwareMonitor/       DLL (telechargees par Install.bat, gitignored)
+  settings.json               Cree au runtime (gitignored)
+  history.jsonl               Cree au runtime (gitignored)
+
+═══ FONCTIONNALITES ═══
+
+  Monitoring : CPU/GPU/RAM/DISK jauges 270deg, temperatures, fans RPM,
+               puissance, throttle detection, historique 30j.
+
+  Energie : Conso murale certifiee (CPU/GPU mesures + estimations),
+            ecrans detectes auto, cout kWh persistant jour/mois/annee.
+
+  Controle : Presets FORGE (GAMING/OFFICE/SILENCE), GPU power limit,
+             fan control PWM + courbes automatiques, reboot vers UEFI.
+
+  HEAL "Eau froide" : bouton toggle + regles cochables.
+                      CPU throttle 70%, purge standby RAM, GPU -30%,
+                      clean disk/net. Auto-revert 60s.
+
+  Alertes : cartes qui pulsent, bips, Toast Windows, webhook Discord/Telegram.
+            HUD flottant Tk always-on-top draggable.
+
+  Themes : NEON / MATRIX / FIRE / ICE / GOLD / VOID (6 themes).
+
+═══ PRE-REQUIS ═══
+
+  Windows 10/11 x64
+  Python 3.10+           (via winget)
+  .NET Desktop Runtime 8 ou 10  (via winget)
+  psutil, pythonnet, pystray, Pillow  (via pip)
+  LibreHardwareMonitor   (telecharge automatiquement)
+
+  Optionnel :
+  smartmontools          winget install smartmontools.smartmontools
+                         (pour rapport SMART des disques)
+
+═══ ADMIN REQUIS ═══
+
+  SINDRI tourne comme ADMIN (le .bat s'auto-eleve via UAC).
+  C'est necessaire pour :
+    - lire les capteurs materiels (MSR CPU, RAPL power)
+    - piloter le GPU (nvidia-smi -pl)
+    - controler les fans PWM
+    - purger la standby list RAM (privilege SeProfileSingleProcessPrivilege)
+
+═══ MISE A JOUR ═══
+
+  git pull (ou re-copier le dossier).
+  settings.json et history.jsonl sont preserves.
+
+═══ DEPANNAGE ═══
+
+  Probleme                       Solution
+  -----------------------------  ------------------------------
+  "Python introuvable"           Relance Install.bat apres reboot
+  "pythonnet install failed"     Verifie ta connexion, relance
+  "CPU temp: --"                 Il faut lancer en admin (le .bat le fait)
+  "[lhm-lib] ..."                Installe .NET Desktop Runtime 10
+  Port 7890 deja utilise         SINDRI tourne deja, ferme-le d'abord
+  "Cannot connect"               Un antivirus bloque peut-etre Python
+  Pas d'icone systray            pip install pystray Pillow
+  Fans non controlables          BIOS force le mode Auto sur les headers
+                                 -> passer en "PWM Manual" dans le BIOS
+
+═══ DESINSTALLATION ═══
+
+  1. Dans SINDRI (page web) : bouton AUTOSTART -> desactiver
+  2. Clic droit systray -> Quitter
+  3. Supprime le dossier SINDRI
+  4. Supprime le raccourci "SINDRI" du Bureau
+  5. Optionnel : pip uninstall -r requirements.txt
+
+═══ LICENCE ═══
+
+  MIT License - voir LICENSE.
+  LibreHardwareMonitor est MPL-2.0, telecharge separement.

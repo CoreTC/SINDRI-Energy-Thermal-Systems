@@ -1,0 +1,38 @@
+# Runtime — données spécifiques à l'utilisateur, NE PAS COMMIT
+settings.json
+history.jsonl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Notes personnelles / brouillons
+Liste de tâches*.txt
+TODO.md
+NOTES.md
+*.private.*
+
+# Builds / packages
+*.zip
+*.exe
+!Lancer SINDRI.bat
+!Install.bat
+
+# LibreHardwareMonitor DLL (~18 MB) — trop lourd pour git, à télécharger séparément
+LibreHardwareMonitor/
