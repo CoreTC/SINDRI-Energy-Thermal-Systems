@@ -101,6 +101,23 @@ powershell -File Download-LHM.ps1
 py pulse.py
 ```
 
+## Compatibilité matérielle
+
+**Auto-détecté à l'installation** :
+- CPU model + TDP (LHM + regex Intel/AMD ; fallback 95 W)
+- RAM totale, nombre de SSD NVMe / SATA / HDD (via `Get-PhysicalDisk`)
+- Modèle GPU, VBIOS, driver, temp, load, power (**NVIDIA uniquement** via `nvidia-smi`)
+- Températures, ventilateurs, tensions (LHM auto — chipsets **Nuvoton / ITE / Fintek** couverts)
+- BIOS, carte mère, écrans détectés (WMI)
+
+**Limites connues** :
+- **NVIDIA seul** pour la carte GPU (AMD/Intel Arc = pas de données GPU, autres cartes fonctionnent quand même)
+- **Windows 10/11** uniquement (utilise WMI, PowerShell, nvidia-smi, powercfg, MSR)
+- **Fan control** dépend du chipset Super I/O et du BIOS (~60 % des cartes desktop). Si les fans sont bloqués en mode "Auto" par le BIOS, il faut les passer en "PWM Manual" dans le BIOS.
+- **Purge standby list RAM** utilise `SeProfileSingleProcessPrivilege` (Windows uniquement, requiert admin).
+
+Modifie ta config hardware (nombre exact de disques, PSU efficacité, RAM, ventilos, écrans) via le bouton **⚙** de la carte CONSOMMATION MURALE — les défauts sont conservateurs.
+
 ## Dépendances
 
 - **Python 3.10+**

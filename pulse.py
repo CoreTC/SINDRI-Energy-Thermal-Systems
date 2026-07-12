@@ -4149,11 +4149,11 @@ async function openPowerConfig() {
   const d = await r.json();
   document.getElementById('pc-eff').value   = d.psu_efficiency   ?? 87;
   document.getElementById('pc-idle').value  = d.psu_idle_loss_w  ?? 8;
-  document.getElementById('pc-ram').value   = d.ram_gb           ?? 32;
-  document.getElementById('pc-fans').value  = d.num_fans         ?? 6;
-  document.getElementById('pc-nvme').value  = d.num_ssd_nvme     ?? 3;
+  document.getElementById('pc-ram').value   = d.ram_gb           ?? 16;
+  document.getElementById('pc-fans').value  = d.num_fans         ?? 4;
+  document.getElementById('pc-nvme').value  = d.num_ssd_nvme     ?? 1;
   document.getElementById('pc-sata').value  = d.num_ssd_sata     ?? 0;
-  document.getElementById('pc-hdd').value   = d.num_hdd          ?? 5;
+  document.getElementById('pc-hdd').value   = d.num_hdd          ?? 0;
   document.getElementById('pc-extra').value = d.extra_devices_w  ?? 5;
   document.getElementById('pc-screens').value = d.screens_manual_w != null ? d.screens_manual_w : '';
   // Info auto : lit la dernière conso écran calculée
@@ -4580,18 +4580,21 @@ _settings_default = {
     'lan_access': False,           # écoute sur 0.0.0.0 (accessible sur le réseau local)
     'pin_hash': '',                # hash SHA256 du PIN (vide = pas de PIN)
     # Conso : configuration hardware pour estimation "wall power" précise
+    # (ram_gb / num_ssd_nvme / num_ssd_sata / num_hdd sont auto-détectés au 1er
+    # lancement si settings.json n'existe pas — les valeurs ci-dessous sont juste
+    # des fallback génériques)
     'psu_efficiency':  87,         # % (Bronze=82, Silver=85, Gold=87-90, Platinum=92, Titanium=94)
     'psu_idle_loss_w': 8,          # pertes fixes du PSU (fan, contrôleur, etc.)
-    'ram_gb':          32,         # total RAM installée en GB
-    'num_ssd_nvme':    3,          # nombre de SSD NVMe (~4W actif, ~0.3W idle)
-    'num_ssd_sata':    0,          # SSD SATA (~3W actif)
-    'num_hdd':         5,          # HDD (~6W actif, ~4W idle)
-    'num_fans':        6,          # ventilateurs 120mm (~1.8W chacun)
+    'ram_gb':          16,         # fallback si détection échoue
+    'num_ssd_nvme':    1,          # fallback si détection échoue
+    'num_ssd_sata':    0,
+    'num_hdd':         0,
+    'num_fans':        4,          # ventilateurs 120mm (~1.8W chacun) — défaut mid-tower
     'extra_devices_w': 5,          # RGB/USB/périphériques (fixe)
     'screens_manual_w': None,      # override manuel conso écrans (W). None = calcul auto
-    # Coût électrique — cumul persistant + tarif
-    'kwh_price':          0.0937,  # prix par kWh (devise libre)
-    'kwh_currency':       '€',     # symbole devise (€, CHF, $…)
+    # Coût électrique — cumul persistant + tarif (à ajuster selon fournisseur)
+    'kwh_price':          0.20,    # prix par kWh (défaut générique ~ moyenne UE)
+    'kwh_currency':       '€',     # symbole devise (€, CHF, $, £…)
     'energy_daily_wh':    0.0,
     'energy_daily_key':   '',      # 'YYYY-MM-DD'
     'energy_monthly_wh':  0.0,
@@ -4622,12 +4625,55 @@ _settings_default = {
     },
 }
 
+def _auto_detect_hw():
+    """Auto-détecte RAM + nombre de disques pour de meilleurs défauts au 1er lancement.
+       Retourne un dict à merger dans les settings par défaut."""
+    d = {}
+    # RAM installée (arrondi au GB)
+    try:
+        d['ram_gb'] = int(round(psutil.virtual_memory().total / (1024**3)))
+    except Exception:
+        pass
+    # Disques : compte NVMe / SATA SSD / HDD via WMI Get-PhysicalDisk
+    if sys.platform == 'win32':
+        try:
+            ps = ('Get-PhysicalDisk | Select-Object MediaType,BusType | '
+                  'ConvertTo-Json -Compress')
+            out = _run(['powershell', '-NoProfile', '-Command', ps], timeout=6)
+            if out:
+                data = json.loads(out)
+                if not isinstance(data, list): data = [data]
+                nvme = sata = hdd = 0
+                for disk in data:
+                    media = str(disk.get('MediaType') or '').upper()
+                    bus   = str(disk.get('BusType')   or '').upper()
+                    if 'HDD' in media:
+                        hdd += 1
+                    elif 'SSD' in media:
+                        # BusType 17 = NVMe, "NVMe" en string aussi. 11=SATA, 8=RAID
+                        if 'NVME' in bus or bus == '17':
+                            nvme += 1
+                        else:
+                            sata += 1
+                if (nvme + sata + hdd) > 0:
+                    d['num_ssd_nvme'] = nvme
+                    d['num_ssd_sata'] = sata
+                    d['num_hdd']      = hdd
+        except Exception as e:
+            print(f'[auto-hw] {e}')
+    return d
+
 def _load_settings():
     try:
         if _os.path.exists(SETTINGS_FILE):
             with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             return {**_settings_default, **data}
+        # Premier lancement : auto-détection matérielle
+        auto = _auto_detect_hw()
+        if auto:
+            print(f'✓ Auto-détection hardware : {auto}')
+        return {**_settings_default, **auto}
     except Exception as e:
         print(f'[settings] {e}')
     return dict(_settings_default)
