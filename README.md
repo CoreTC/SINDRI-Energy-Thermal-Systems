@@ -1,5 +1,7 @@
 # SINDRI — Energy • Thermal • Systems
 
+![SINDRI dashboard](preview.png)
+
 Dashboard web local **mono-fichier Python** pour monitorer, contrôler et **soigner** ton PC Windows en temps réel.
 Style néon cyberpunk, contrôle direct des ventilateurs et du GPU, coût électrique persistant, auto-heal "eau froide sur la Forge".
 
