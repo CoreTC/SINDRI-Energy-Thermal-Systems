@@ -1214,81 +1214,190 @@ body::after {
   background:linear-gradient(90deg,var(--bg),var(--bg2),var(--bg));
   position:sticky; top:0; z-index:200;
 }
+/* ═══ SINDRI LOGO — Forge Nordique ═══════════════════════════════════════ */
 .hdr-logo {
-  display:flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:14px;
   font-family:'Consolas', 'Courier New', monospace;
   position:relative;
+  padding:2px 0;
 }
-.hdr-logo .bolt {
-  font-size:1.55em; line-height:1;
-  color:var(--a1);
-  text-shadow:0 0 8px var(--a1), 0 0 22px var(--a1), 0 0 40px var(--a1g);
-  animation:bolt-pulse 1.4s ease-in-out infinite;
-  filter:drop-shadow(0 0 4px var(--a1));
-}
-@keyframes bolt-pulse {
-  0%, 100% { transform:scale(1);    text-shadow:0 0 6px var(--a1), 0 0 14px var(--a1); }
-  40%      { transform:scale(1.14); text-shadow:0 0 14px var(--a1), 0 0 34px var(--a1), 0 0 60px var(--a1g); }
-  60%      { transform:scale(.96);  text-shadow:0 0 4px var(--a1), 0 0 10px var(--a1); }
-}
-.hdr-logo .brand {
+
+/* ── Emblème hexagonal avec marteau + éclair ── */
+.hdr-emblem {
+  width:52px; height:58px;
   position:relative;
-  font-size:1.2em; font-weight:900; letter-spacing:.42em;
-  background:linear-gradient(90deg, var(--a1) 0%, var(--a2) 35%, var(--a3) 55%, var(--a2) 75%, var(--a1) 100%);
-  background-size:220% auto;
+  flex-shrink:0;
+}
+.hdr-emblem svg { width:100%; height:100%; overflow:visible; }
+.hex-outer {
+  fill:none; stroke:var(--a1); stroke-width:1.5;
+  filter:drop-shadow(0 0 6px var(--a1));
+  transform-origin:center;
+  animation:hex-rotate 12s linear infinite;
+}
+.hex-inner {
+  fill:rgba(0,0,0,.6); stroke:var(--a2); stroke-width:.8;
+  opacity:.9;
+}
+@keyframes hex-rotate {
+  0%   { transform:rotate(0deg); }
+  100% { transform:rotate(360deg); }
+}
+/* Marteau + éclair au centre */
+.emblem-hammer {
+  fill:var(--a1); stroke:var(--a1); stroke-width:.5;
+  filter:drop-shadow(0 0 4px var(--a1));
+  animation:hammer-strike 1.8s ease-in-out infinite;
+  transform-origin:20px 32px;
+}
+@keyframes hammer-strike {
+  0%, 60%, 100% { transform:rotate(0deg); }
+  70%           { transform:rotate(-18deg); }
+  80%           { transform:rotate(3deg); }
+  85%           { transform:rotate(-2deg); }
+  90%           { transform:rotate(0deg); }
+}
+.emblem-bolt {
+  fill:var(--a3);
+  filter:drop-shadow(0 0 5px var(--a3));
+  animation:bolt-flash 1.8s ease-in-out infinite;
+  opacity:0;
+}
+@keyframes bolt-flash {
+  0%, 65%, 100% { opacity:0; }
+  70%, 78%      { opacity:1; }
+  82%           { opacity:.4; }
+}
+/* Étincelles qui giclent au moment du coup */
+.emblem-spark {
+  fill:var(--a1);
+  opacity:0;
+  transform-origin:20px 42px;
+  animation:spark-fly 1.8s ease-out infinite;
+}
+.emblem-spark.s2 { animation-delay:.02s; fill:var(--a2); }
+.emblem-spark.s3 { animation-delay:.04s; fill:var(--a3); }
+.emblem-spark.s4 { animation-delay:.03s; }
+@keyframes spark-fly {
+  0%, 70%  { opacity:0; transform:translate(0,0) scale(1); }
+  75%      { opacity:1; transform:translate(0,0) scale(1); }
+  100%     { opacity:0; transform:translate(var(--sx,10px), var(--sy,-14px)) scale(.3); }
+}
+
+/* ── Colonne texte : SINDRI + baseline runique ── */
+.brand-stack {
+  display:flex; flex-direction:column; gap:2px;
+  line-height:1;
+}
+.brand-line {
+  font-size:1.3em; font-weight:900; letter-spacing:.35em;
+  position:relative; height:1em;
+}
+.brand-main {
+  background:linear-gradient(180deg,
+    #ffffff 0%,
+    var(--a1) 30%,
+    var(--a2) 55%,
+    var(--a3) 78%,
+    var(--a1) 100%);
+  background-size:100% 200%;
   -webkit-background-clip:text;
           background-clip:text;
   color:transparent;
-  animation:brand-shine 4s linear infinite;
-  filter:drop-shadow(0 0 6px var(--a1g)) drop-shadow(0 0 14px var(--a1g));
+  animation:metal-flow 3.5s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px var(--a1g)) drop-shadow(0 0 12px var(--a1g));
+  position:relative;
+  z-index:2;
 }
-@keyframes brand-shine {
-  0%   { background-position:0%   center; }
-  100% { background-position:220% center; }
+@keyframes metal-flow {
+  0%,100% { background-position:0% 0%; }
+  50%     { background-position:0% 100%; }
 }
-/* Ligne de fond glitch subtile sous PULSE */
-.hdr-logo .brand::before {
+/* Aberration chromatique : ghost rouge et cyan légèrement décalés */
+.brand-line::before,
+.brand-line::after {
   content:attr(data-txt);
-  position:absolute; left:.05em; top:.06em;
-  color:var(--a3); opacity:.28; z-index:-1;
-  filter:blur(1px);
-  animation:brand-jitter 4.5s steps(24) infinite;
+  position:absolute; left:0; top:0;
+  font-weight:900; letter-spacing:.35em;
+  pointer-events:none; z-index:1;
+  animation:chroma-shift 3s ease-in-out infinite;
 }
-@keyframes brand-jitter {
-  0%,90%,100% { transform:translate(0,0); }
-  91%         { transform:translate(1px,-1px); }
-  92%         { transform:translate(-2px,1px); }
-  93%         { transform:translate(0,0); }
+.brand-line::before {
+  color:var(--a3); mix-blend-mode:screen; opacity:.55;
+  transform:translate(-1.5px,0);
+  filter:blur(.4px);
 }
-.hdr-logo .version {
-  font-size:.55em; font-weight:bold; letter-spacing:.18em;
-  padding:3px 9px 2px;
-  color:var(--a3);
-  background:linear-gradient(135deg, rgba(255,0,68,.15), rgba(255,0,68,.03));
-  border:1px solid var(--a3);
-  border-radius:11px;
-  text-shadow:0 0 6px var(--a3);
-  box-shadow:0 0 6px rgba(255,0,68,.35), inset 0 0 6px rgba(255,0,68,.15);
-  animation:v2-glow 2.4s ease-in-out infinite;
+.brand-line::after {
+  color:var(--a1); mix-blend-mode:screen; opacity:.55;
+  transform:translate(1.5px,0);
+  filter:blur(.4px);
 }
-@keyframes v2-glow {
-  0%,100% { box-shadow:0 0 6px rgba(255,0,68,.35),  inset 0 0 6px rgba(255,0,68,.15); }
-  50%     { box-shadow:0 0 16px rgba(255,0,68,.7),  inset 0 0 10px rgba(255,0,68,.35); }
+@keyframes chroma-shift {
+  0%,100% { transform:translate(-1.5px,0); }
+  50%     { transform:translate(1.5px,0); }
 }
-/* ECG heartbeat sous le logo */
-.hdr-ecg {
-  width:64px; height:22px;
+/* Baseline runique : ligne de métal en fusion sous SINDRI */
+.brand-molten {
+  width:100%; height:3px; margin-top:1px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    var(--a3) 15%,
+    #ffcc00 35%,
+    #ffffff 50%,
+    #ffcc00 65%,
+    var(--a3) 85%,
+    transparent 100%);
+  background-size:200% auto;
+  animation:molten-flow 3s linear infinite;
+  filter:drop-shadow(0 0 4px var(--a3)) blur(.3px);
+  border-radius:3px;
 }
-.hdr-ecg .ecg-line {
-  fill:none; stroke:var(--a1); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round;
-  stroke-dasharray:180; stroke-dashoffset:180;
-  animation:ecg-draw 1.4s ease-in-out infinite;
-  filter:drop-shadow(0 0 3px var(--a1));
+@keyframes molten-flow {
+  0%   { background-position:0% center; }
+  100% { background-position:200% center; }
 }
-@keyframes ecg-draw {
-  0%   { stroke-dashoffset:180; }
-  55%  { stroke-dashoffset:0;   }
-  100% { stroke-dashoffset:-180;}
+/* Sous-titre avec runes Elder Futhark */
+.brand-subtitle {
+  font-size:.5em; letter-spacing:.4em;
+  color:var(--dim);
+  margin-top:4px;
+  display:flex; gap:8px; align-items:center;
+  text-shadow:0 0 4px var(--bg);
+}
+.brand-subtitle .rune {
+  color:var(--a1);
+  font-size:1.2em;
+  text-shadow:0 0 4px var(--a1);
+  animation:rune-pulse 2s ease-in-out infinite;
+}
+.brand-subtitle .rune.r2 { color:var(--a2); text-shadow:0 0 4px var(--a2); animation-delay:.4s; }
+.brand-subtitle .rune.r3 { color:var(--a3); text-shadow:0 0 4px var(--a3); animation-delay:.8s; }
+@keyframes rune-pulse {
+  0%,100% { opacity:.55; }
+  50%     { opacity:1; }
+}
+
+/* ── Badge v3 hexagonal ── */
+.hdr-version {
+  width:32px; height:36px;
+  position:relative;
+  flex-shrink:0;
+}
+.hdr-version svg { width:100%; height:100%; overflow:visible; }
+.v-hex-border {
+  fill:rgba(255,0,68,.08); stroke:var(--a3); stroke-width:1.5;
+  filter:drop-shadow(0 0 6px var(--a3));
+  animation:v-hex-glow 2.4s ease-in-out infinite;
+}
+@keyframes v-hex-glow {
+  0%,100% { filter:drop-shadow(0 0 3px var(--a3)); }
+  50%     { filter:drop-shadow(0 0 10px var(--a3)) drop-shadow(0 0 18px var(--a3g)); }
+}
+.hdr-version .v-label {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.7em; font-weight:900; letter-spacing:.1em;
+  color:var(--a3); text-shadow:0 0 6px var(--a3);
 }
 .hdr-clock { font-size:1.25em; color:var(--a2); text-shadow:0 0 10px var(--a2); letter-spacing:.1em; }
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%;
@@ -1769,13 +1878,52 @@ body::after {
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-logo">
-    <span class="bolt">⚡</span>
-    <span class="brand" data-txt="SINDRI">SINDRI</span>
-    <svg class="hdr-ecg" viewBox="0 0 64 22" preserveAspectRatio="none">
-      <path class="ecg-line" d="M0 11 L12 11 L16 4 L20 18 L24 11 L36 11 L40 6 L44 14 L48 11 L64 11"/>
-    </svg>
-    <span class="hdr-tag" style="font-size:.5em;letter-spacing:.28em;color:var(--dim);border-left:1px solid var(--border);padding:0 0 0 10px;line-height:1.4;">Energy<br>Thermal<br>Systems</span>
-    <span class="version">v3</span>
+
+    <!-- Emblème hexagonal : marteau qui frappe + éclair + étincelles -->
+    <div class="hdr-emblem">
+      <svg viewBox="-4 -4 48 54">
+        <!-- Anneaux hexagonaux -->
+        <polygon class="hex-outer" points="20,0 40,10 40,32 20,42 0,32 0,10"/>
+        <polygon class="hex-inner" points="20,3 37,12 37,30 20,39 3,30 3,12"/>
+        <!-- Enclume (base solide) -->
+        <path d="M 8,32 L 32,32 L 30,28 L 24,28 L 22,24 L 18,24 L 16,28 L 10,28 Z" fill="var(--a2)" opacity=".7" stroke="var(--a2)" stroke-width=".4"/>
+        <!-- Marteau qui frappe (pivot bas gauche) -->
+        <g class="emblem-hammer">
+          <!-- Manche -->
+          <rect x="19" y="7" width="2" height="18" rx=".5"/>
+          <!-- Tête du marteau -->
+          <rect x="14" y="4" width="12" height="6" rx="1"/>
+        </g>
+        <!-- Éclair qui frappe l'enclume -->
+        <polygon class="emblem-bolt" points="19,10 22,18 20,18 23,26 17,17 20,17"/>
+        <!-- Étincelles (positions randomisées via --sx/--sy) -->
+        <circle class="emblem-spark s1" cx="20" cy="30" r="1.1" style="--sx:-9px; --sy:-11px;"/>
+        <circle class="emblem-spark s2" cx="20" cy="30" r="0.9" style="--sx:9px; --sy:-13px;"/>
+        <circle class="emblem-spark s3" cx="20" cy="30" r="1"   style="--sx:-4px; --sy:-16px;"/>
+        <circle class="emblem-spark s4" cx="20" cy="30" r="0.7" style="--sx:6px; --sy:-10px;"/>
+      </svg>
+    </div>
+
+    <!-- Bloc texte SINDRI + baseline métal en fusion + runes ENERGY THERMAL SYSTEMS -->
+    <div class="brand-stack">
+      <div class="brand-line" data-txt="SINDRI">
+        <span class="brand-main">SINDRI</span>
+      </div>
+      <div class="brand-molten"></div>
+      <div class="brand-subtitle">
+        <span class="rune">ᛖ</span>ENERGY
+        <span class="rune r2">ᛏ</span>THERMAL
+        <span class="rune r3">ᛊ</span>SYSTEMS
+      </div>
+    </div>
+
+    <!-- Badge v3 hexagonal -->
+    <div class="hdr-version">
+      <svg viewBox="-3 -3 46 42">
+        <polygon class="v-hex-border" points="20,0 37,9 37,27 20,36 3,27 3,9"/>
+      </svg>
+      <span class="v-label">v3</span>
+    </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;font-size:.65em;">
     <span class="dot" id="status-dot"></span>
